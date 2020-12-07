@@ -11,3 +11,20 @@ https://github.com/Go-000/Go-000/issues/8
 
 评语:
 在 dao 层建议把源信息带上，即使不在 wrap 里面，在format 里面也可以展示，慎防底层把错误提示信息修改掉。
+
+
+老师参考：  
+主要是不要在最底层吞掉异常，会有以下两类问题1.直接吞掉异常，替换成自定义异常，没有wrap，2.wrap了自定义异常，没有把源异常打印
+```
+dao: 
+
+ return errors.Wrapf(code.NotFound, fmt.Sprintf("sql: %s error: %v", sql, err))
+
+
+biz:
+
+if errors.Is(err, code.NotFound} {
+
+}
+
+```
