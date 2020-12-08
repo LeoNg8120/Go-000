@@ -5,7 +5,7 @@
 课程作业布置【作业提交截止时间12月9日（周三）23:59前】
 
 👉Week03 作业题目：
-1.基于 errgroup 实现一个 http server 的启动和关闭 ，以及 linux signal 信号的注册和处理，要保证能够 一个退出，全部注销退出。  
+1.基于 errgroup 实现多个 http server 的启动和关闭 ，以及 linux signal 信号的注册和处理，要保证能够 一个退出，全部注销退出。  
 ﻿
 ⚠️以上作业，要求提交到Github上面，Week03作业提交地址：
 https://github.com/Go-000/Go-000/issues/69
