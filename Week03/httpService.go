@@ -20,9 +20,13 @@ func HttpRegister()error{
 	http.HandleFunc("/",handler)
 	return nil
 }
+
+
 func handler(writer http.ResponseWriter, request *http.Request)  {
 	t := time.Now()
 	timeStr := fmt.Sprintf("Hello this time is %s\n",t.String())
 	writer.Write([]byte(timeStr))
 }
+
+
 
