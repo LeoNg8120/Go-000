@@ -33,8 +33,10 @@ func main() {
 
 	signal.Notify(signalChan,syscall.SIGINT,syscall.SIGTERM)
 
+	//1. 建议使用 errgroup 控制整个流程
 	go func() {
 		select {
+		//2. 除了这个信号量之外，如果其中一个 server 启动的时候，报错也需要考虑。
 		case <-signalChan:
 			log.Println("recv SIGTERM,service will exit...")
 			for server := range srvChan {

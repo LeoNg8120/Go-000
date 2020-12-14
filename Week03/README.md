@@ -17,5 +17,7 @@ https://github.com/Go-000/Go-000/issues/69
 🎈学号查询方式：
 PC端登录time.geekbang.org,点击右上角头像进入【我的教室】，左侧头像下方G开头的为学号。
 
+#### comment老师建议
+1. 建议使用 errgroup 控制整个流程
+2. 除了这个信号量之外，如果其中一个 server 启动的时候，报错也需要考虑。
 
-为了保护大家隐私，我操作更改了Github的部分后台权限，可能导致部分同学fork的仓库地址发生变化，辛苦大家重新fork班级仓库地址：https://github.com/Go-000/Go-000
