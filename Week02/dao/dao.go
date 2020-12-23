@@ -4,6 +4,7 @@ import (
 	"Go-000/Week02/model"
 	"Go-000/Week02/sentinel"
 	"database/sql"
+	"fmt"
 	"github.com/pkg/errors"
 	"math/rand"
 	"time"
@@ -22,12 +23,13 @@ func mysqlQuery(uid int) (*model.User,error){
 
 
 func GetUserDetailInfo(uid int)(*model.User,error)  {
+	sqllog:=fmt.Sprintf("SELECT * FROM user where uid=%d",uid)
 	userinfo,err:=mysqlQuery(uid)
 	if errors.Is(err,sql.ErrNoRows) {
 		return userinfo,sentinel.DaoErrNoRows
 	}
 	if err != nil {
-		return userinfo,errors.Wrap(err,"GetUserDetailInfo error")
+		return userinfo,errors.Wrapf(sentinel.NotFound(),"sql: %s error: %v", sqllog, err)
 	}
 	return userinfo,nil
 }

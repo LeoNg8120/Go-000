@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"golang.org/x/sync/errgroup"
 	"log"
@@ -25,27 +26,31 @@ func Handler(writer http.ResponseWriter, request *http.Request)  {
 }
 
 func main() {
-	g := new(errgroup.Group)
+	g,ctx := errgroup.WithContext(context.Background())
 	ip := "127.0.0.1"
 
 	signalChan:=make(chan os.Signal,1)
-	srvChan:=make(chan *http.Server,50)
-
 	signal.Notify(signalChan,syscall.SIGINT,syscall.SIGTERM)
 
 	//1. 建议使用 errgroup 控制整个流程
-	go func() {
+	g.Go(func() error {
 		select {
 		//2. 除了这个信号量之外，如果其中一个 server 启动的时候，报错也需要考虑。
 		case <-signalChan:
 			log.Println("recv SIGTERM,service will exit...")
-			for server := range srvChan {
-				if err:=server.Shutdown(context.Background());err!=nil {
-					fmt.Printf("HttpService(%v) Shutdown err:%v\n",server.Addr,err)
-				}
-			}
+			// inject error
+			g.Go(func() error {
+				log.Println("start inject error")
+				time.Sleep(time.Second)
+				log.Println("inject finish")
+				return errors.New("inject error")
+			})
+		case <-ctx.Done():
+			log.Println("signal ctx done")
+			return ctx.Err()
 		}
-	}()
+		return nil
+	})
 
 	http.HandleFunc("/",Handler)
 	for port:=1000;port<1050;port++ {
@@ -53,10 +58,21 @@ func main() {
 		g.Go(func() error {
 			fmt.Printf("HttpService start,port is %d\n",tmp)
 			srv := &http.Server{Addr:ip+":"+strconv.Itoa(tmp)}
-			srvChan<-srv
+
+			go func(svr *http.Server) {
+				<-ctx.Done()
+				log.Println("HttpService get ctx done")
+				err:=svr.Shutdown(context.TODO())
+				if err != nil {
+					log.Println("svr shutdown err")
+				}
+				log.Println("HttpService Shutdown success")
+			}(srv)
+
 			if err:=srv.ListenAndServe();err!= nil {
 				fmt.Printf("HttpService(%v) ListenAndServe error:%v\n",srv.Addr,err.Error())
 			}
+			time.Sleep(1)
 			return nil
 		})
 	}
@@ -66,5 +82,6 @@ func main() {
 	}else{
 		fmt.Println("HttpService g.wait error:",err)
 	}
+	time.Sleep(5*time.Second)
 }
 
